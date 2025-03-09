@@ -6,6 +6,7 @@
 
 #include "faulhaber/MC_Helpers.h"
 #include <stdint.h>
+#include <libserial/SerialStream.h>
 
 //---------------------------------------------------------------------
 //  local definitions
@@ -42,6 +43,7 @@ class MCUart
 {
 	public:
 		MCUart();
+		~MCUart();
 		void Open(uint32_t);
 		void ReOpen(uint32_t);
 		void Update(uint32_t);
@@ -73,6 +75,8 @@ class MCUart
 		uint32_t To_Threshold;
 		bool isTimerActive = false;
 		UartStates state;
+
+		std::shared_ptr<LibSerial::SerialStream> serial_stream_;
 };
 
 #endif

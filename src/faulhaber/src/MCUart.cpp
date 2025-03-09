@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include "faulhaber/MCUart.h"
+#include "vector"
 
 //---------------------------------------------------------------------
 //  local definitions
@@ -46,6 +47,11 @@ MCUart::MCUart()
     rxIdx = 0;
     rxSize = 0;
     state = eUartNotReady;
+    serial_stream_ = std::make_shared<LibSerial::SerialStream>();
+}
+
+MCUart::~MCUart() {
+    Stop();
 }
 
 /*----------------------------------------------------------
@@ -66,11 +72,14 @@ void MCUart::Open(uint32_t baud = 115200)
     std::printf("UART: Open @ Speed: %u\n", BaudRate);
     #endif
 
-    Serial1.begin(BaudRate);
+    serial_stream_->Open("/dev/ttyAMA0");
+    serial_stream_->SetBaudRate(LibSerial::BaudRate::BAUD_115200);
+    serial_stream_->SetCharacterSize(LibSerial::CharacterSize::CHAR_SIZE_8);
+    serial_stream_->SetParity(LibSerial::Parity::PARITY_NONE);
+    serial_stream_->SetStopBits(LibSerial::StopBits::STOP_BITS_1);
+    serial_stream_->SetFlowControl(LibSerial::FlowControl::FLOW_CONTROL_NONE);
+    serial_stream_->flush();
 
-    for(uint16_t i = 0; i < 10; i++)
-        Serial1.write((char)0);
-    Serial1.flush();
     state = eUartOperating;
 }
 
@@ -88,13 +97,9 @@ void MCUart::ReOpen(uint32_t baud = 115200)
     BaudRate = baud;
     rxIdx = 0;
     rxSize = 0;
-    
-    Serial1.flush();
-    Serial1.end();
-    state = eUartNotReady;
 
-    Serial1.begin(BaudRate);
-    state = eUartOperating;
+    Stop();
+    Open();
 }
 
 /*----------------------------------------------------------
@@ -129,16 +134,19 @@ void MCUart::Update(uint32_t actTime)
 
     if(state == eUartOperating)
     {
-        if(Serial1.available())
-        {
+        int available_bytes = serial_stream_->GetNumberOfBytesAvailable();
+        if (available_bytes > 0)
+        {   
+            std::vector<char> read_array(available_bytes);
+            serial_stream_->read(read_array.data(), available_bytes);
+
             #if(DEBUG_UART & DEBUG_RXCHAR)
             std::printf("UART chunk: >");
             #endif
             
-            while(Serial1.available())
+            for (auto read_byte : read_array)
             {
-                //read the first char
-                uint8_t inChar = (uint8_t)Serial1.read();
+                auto inChar = static_cast<uint8_t>(read_byte);
                 //now add it to the buffer if applicable
                 if(rxIdx < UART_MAX_MSG_SIZE)
                 {
@@ -253,20 +261,6 @@ void MCUart::Register_OnRxCb(pfunction_holder *Cb)
 }
 
 /*----------------------------------------------------------
- * CheckStatus()
- * Check whether the Tx is idle
- * returns true if idle, false if not
- * 
- * 2020-05-10 AW Header
- * 2020-11-18    Done
- * 
- * ---------------------------------------------------------*/
-short MCUart::CheckStatus()
-{
-    return Serial1.availableForWrite();    
-}
-
-/*----------------------------------------------------------
  * WriteMsg(UART_Msg *)
  * hand over a message to be sent. Will be copied into a
  * transfer buffer so the call will likely returnb efore the
@@ -281,7 +275,7 @@ short MCUart::WriteMsg(UART_Msg *Msg)
     bool status = false;
 
     uint16_t len = (uint16_t)Msg->Hdr.u8Len + 2;
-    uint16_t size = Serial1.availableForWrite();
+    uint16_t size = len;
     
     #if(DEBUG_UART & DEBUG_TXFRAME)
     std::printf("UART: %u buffer\n", size);
@@ -316,8 +310,8 @@ short MCUart::WriteMsg(UART_Msg *Msg)
         }
         std::printf("#\n");
         #endif
-        
-        Serial1.write((char *)(TxMsg.u8Data), TxMsg.Hdr.u8Len + 2);
+
+        serial_stream_->write((char *)(TxMsg.u8Data), TxMsg.Hdr.u8Len + 2);
     }
     #if(DEBUG_UART & DEBUG_TXFRAME)
     else
@@ -352,4 +346,13 @@ void MCUart::OnTimeOut()
     #if(DEBUG_UART & DEBUG_TO)
     std::printf("UART TO\n");
     #endif
+}
+
+void MCUart::Stop()
+{
+    if(serial_stream_->IsOpen())
+    {
+        serial_stream_->Close();
+        state = eUartNotReady;
+    }
 }

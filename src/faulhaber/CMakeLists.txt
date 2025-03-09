@@ -7,9 +7,13 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(PkgConfig REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+pkg_check_modules(SERIAL REQUIRED libserial)
+include_directories(${SERIAL_INCLUDE_DIRS})
 
 add_library(
   ${PROJECT_NAME}
@@ -26,5 +30,7 @@ target_include_directories(
   PUBLIC
   include
 )
+
+target_link_libraries(${PROJECT_NAME} ${SERIAL_LIBRARIES})
 
 ament_package()
