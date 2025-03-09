@@ -7,7 +7,7 @@
  * 2020-05-24 AW Frame
  *
  *--------------------------------------------------------------*/
- 
+
 //--- includes ---
 
 #include <MCDrive.h>
@@ -69,7 +69,7 @@ const uint16_t PullSWCycleTime = 20; // was 20
 
 /*---------------------------------------------------------------------
  * MCDrive()
- * Not much to be dnone in the intializer
+ * Not much to be done in the initializer
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -80,7 +80,7 @@ MCDrive::MCDrive()
 }
 
 /*---------------------------------------------------------------------
- *void SetNodeId(uint8_t ThisNodeId)
+ * void SetNodeId(uint8_t ThisNodeId)
  * Set the NodeId for this instance. Needs to be called before the
  * Msghandler can be registered
  * 
@@ -96,9 +96,9 @@ void MCDrive::SetNodeId(uint8_t ThisNodeId)
  * void Connect2MsgHandler(MsgHandler *ThisHandler)
  * In each system there is a single Msghandler but there can be
  * multiple drives. So the different instances of the MCNode and their
- * embeddd SDOHandlers need to be connected to the instance of the 
+ * embedded SDOHandlers need to be connected to the instance of the 
  * Msghandler by calling this method.
- * Also sets a default for this instances ComState
+ * Also sets a default for this instance's ComState
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -112,7 +112,7 @@ void MCDrive::Connect2MsgHandler(MsgHandler *ThisHandler)
 
 /*---------------------------------------------------------------------
  * void SetActTime(uint32_t time)
- * If no HW-timer is used this method needs to called cyclically
+ * If no HW-timer is used this method needs to be called cyclically
  * with the latest millis() value to check for any time-outs.
  * Does the same update for the MCNode and embedded SDOhandler.
  *  
@@ -127,8 +127,8 @@ void MCDrive::SetActTime(uint32_t time)
 
 /*-------------------------------------------------------------------
  * CWCommStates CheckComState()
- * Check the ComState of the MCNode instance and update the ComState of then
- * Drive itself if requried.
+ * Check the ComState of the MCNode instance and update the ComState of the
+ * Drive itself if required.
  * Return the ComState
  *
  * 2020-11-22 AW Done
@@ -136,7 +136,7 @@ void MCDrive::SetActTime(uint32_t time)
 
 DriveCommStates MCDrive::CheckComState()
 {
-	//check  status will force the MCDriveRxTxState into eCWError or eCWTimeout
+	//check status will force the MCDriveRxTxState into eCWError or eCWTimeout
 	//if SDO failed. Otherwise we will simply read the actual MCDriveRxTxState
 	CWCommStates NodeState = ThisNode.UpdateComStateBySDO();
 	SDOAccessState = ThisNode.GetSDOState();
@@ -163,7 +163,7 @@ CWCommStates MCDrive::GetNodeState()
 
 /*---------------------------------------------------------------------
  * SDOCommStates GetSDOState()
- * Return the ComState of teh SDOHandler instance of this drive.
+ * Return the ComState of the SDOHandler instance of this drive.
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -187,7 +187,7 @@ uint16_t MCDrive::GetSW()
 
 /*---------------------------------------------------------------------
  * CWCommStates GetCWAccess()
- * Return the actual CWAccessState of this drive. this is for debugging
+ * Return the actual CWAccessState of this drive. This is for debugging
  * any of the step sequences where an access to the CW is used.
  * 
  * 2020-11-22 AW Done
@@ -201,7 +201,7 @@ CWCommStates MCDrive::GetCWAccess()
 /*---------------------------------------------------------------------
  * uint8_t GetAccessStep()
  * Return the general AccessStep used in the step sequences for the
- * different actions. this is used to debug where we might be stuck.
+ * different actions. This is used to debug where we might be stuck.
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -213,7 +213,7 @@ uint8_t MCDrive::GetAccessStep()
 
 /*---------------------------------------------------------------------
  * void ResetComState()
- * Reset the ComState of the Drive but do the same for teh MCNode instance
+ * Reset the ComState of the Drive but do the same for the MCNode instance
  * and reset the AccessSteps to 0 too.
  * Timeout and Retry counters are reset too to have a clean drive.
  * 
@@ -237,7 +237,7 @@ void MCDrive::ResetComState()
  * Set a different value for the number of TO the drive can have before
  * the ComState will be eMCError. Default is set in the class definition.
  * 
- * This could be extended to the MCNode instance too but is nor so far.
+ * This could be extended to the MCNode instance too but is not so far.
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -253,8 +253,8 @@ void MCDrive::SetTORetryMax(uint8_t value)
  * can have before the ComState will be eMCError. 
  * Default is set in the class definition.
  * 
- * This could be extended to the MCNode instance too but is nor so far.
- *  * 
+ * This could be extended to the MCNode instance too but is not so far.
+ * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
 
@@ -273,7 +273,7 @@ void MCDrive::SetBusyRetryMax(uint8_t value)
  * requests.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -292,8 +292,7 @@ DriveCommStates MCDrive::UpdateDriveStatus()
 					SDOAccessState = eSDOIdle;
 					
 					#if(DEBUG_DRIVE & DEBUG_UPDATE)
-					Serial.print("Drive: OpMode pulled ");
-					Serial.println(OpModeReported, HEX);
+					std::printf("Drive: OpMode pulled %X\n", OpModeReported);
 					#endif
 					break;
 				case eSDOIdle:
@@ -301,9 +300,9 @@ DriveCommStates MCDrive::UpdateDriveStatus()
 				case eSDOWaiting:
 					#if(DDEBUG_DRIVE & DEBUG_UPDATE)
 					if(SDOAccessState == eIdle)
-						Serial.print("Drive: OpMode Request ");
+						std::printf("Drive: OpMode Request ");
 					else if(SDOAccessState == eRetry)
-						Serial.print("Drive: OpMode Request Retry");
+						std::printf("Drive: OpMode Request Retry");
 					#endif
 					
 					SDOAccessState = ThisNode.ReadSDO(0x6061, 0x00);
@@ -323,16 +322,15 @@ DriveCommStates MCDrive::UpdateDriveStatus()
 					MCDriveRxTxState = eMCDone;
 					
 					#if(DEBUG_DRIVE & DEBUG_UPDATE)
-					Serial.print("Drive: SW pulled ");
-					Serial.println(ThisNode.StatusWord, HEX);
+					std::printf("Drive: SW pulled %X\n", ThisNode.StatusWord);
 					#endif
 					break;
 				case eSDOIdle:
 				case eSDORetry:
 				case eSDOWaiting:
 					#if(DEBUG_DRIVE & DEBUG_UPDATE)
-					if(SDOAccessState == eIdle)
-						Serial.print("Drive: SW Request ");
+					if(SDOAccessState == eSDOIdle)
+						std::printf("Drive: SW Request ");
 					#endif
 					
 					SDOAccessState = ThisNode.ReadSDO(0x6041, 0x00);
@@ -363,10 +361,10 @@ int8_t MCDrive::GetOpMode()
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  * 
  * 2024-05-12 AW MCDrive
- *               aus UpdateActDrive für 3 Wortbereiten abgeleitet
+ * derived from UpdateActDrive for 3-word transfers
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint8_t *dataPtr)
@@ -380,12 +378,7 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint8_t *dataP
 			MCDriveRxTxState = eMCDone;
 			
 			#if (DEBUG_DRIVE & DEBUG_ReadSDO)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-		  Serial.print(" = ");
-			Serial.println(*dataPtr, HEX);
+			std::printf("Drive: object %X.%X = %X\n", idx, subIdx, *dataPtr);
 			#endif
 			break;
 		case eSDOIdle:
@@ -393,11 +386,8 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint8_t *dataP
 		case eSDOWaiting:
 			#if(DEBUG_DRIVE & DEBUG_ReadSDO)
 			if(SDOAccessState == eSDOIdle)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-			Serial.println(" angefragt");
+			std::printf("Drive: object %X.", idx);
+			std::printf("%X angefragt\n", subIdx);
 			#endif
 			
 			SDOAccessState = ThisNode.ReadSDO(idx, subIdx);
@@ -420,12 +410,7 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint16_t *data
 			MCDriveRxTxState = eMCDone;
 			
 			#if (DEBUG_DRIVE & DEBUG_ReadSDO)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-		  Serial.print(" = ");
-			Serial.println(*dataPtr, HEX);
+			std::printf("Drive: object %X.%X = %X\n", idx, subIdx, *dataPtr);
 			#endif
 			break;
 		case eSDOIdle:
@@ -433,11 +418,8 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint16_t *data
 		case eSDOWaiting:
 			#if(DEBUG_DRIVE & DEBUG_ReadSDO)
 			if(SDOAccessState == eSDOIdle)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-			Serial.println(" angefragt");
+			std::printf("Drive: object %X.", idx);
+			std::printf("%X angefragt\n", subIdx);
 			#endif
 			
 			SDOAccessState = ThisNode.ReadSDO(idx, subIdx);
@@ -460,12 +442,7 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint32_t *data
 			MCDriveRxTxState = eMCDone;
 			
 			#if (DEBUG_DRIVE & DEBUG_ReadSDO)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-		  Serial.print(" = ");
-			Serial.println(*dataPtr, HEX);
+			std::printf("Drive: object %X.%X = %X\n", idx, subIdx, *dataPtr);
 			#endif
 			break;
 		case eSDOIdle:
@@ -473,11 +450,8 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint32_t *data
 		case eSDOWaiting:
 			#if(DEBUG_DRIVE & DEBUG_ReadSDO)
 			if(SDOAccessState == eSDOIdle)
-			Serial.print("Drive: object ");
-		  Serial.print(idx,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-			Serial.println(" angefragt");
+			std::printf("Drive: object %X.", idx);
+			std::printf("%X angefragt\n", subIdx);
 			#endif
 			
 			SDOAccessState = ThisNode.ReadSDO(idx, subIdx);
@@ -494,15 +468,15 @@ DriveCommStates MCDrive::ReadObject(uint16_t idx, uint8_t subIdx, uint32_t *data
  * DriveCommStates WriteObject(uint16_t idx, uint8_t subIdx, uint8_t value)
  * DriveCommStates WriteObject(uint16_t idx, uint8_t subIdx, uint16_t value)
  * DriveCommStates WriteObject(uint16_t idx, uint8_t subIdx, uint32_t value)
-
+ *
  * Write to a single object
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  * 
  * 2024-05-05 AW MCDrive
- * 2024-05-12    aus SwitchtoDrive abgeleitet
+ * 2024-05-12 derived from SwitchtoDrive
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint8_t value)
@@ -516,13 +490,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint8_t value
 		MCDriveRxTxState = eMCDone;
 		
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
-		Serial.print("Drive: set object ");
-		Serial.print(idx,HEX);
-		Serial.print(".");
-		Serial.print(subIdx,HEX);
-		Serial.print(" = ");
-		Serial.print(value, HEX);
-		Serial.println(" done");
+		std::printf("Drive: set object %X.%X = %X done\n", idx, subIdx, value);
 		#endif
 	}
 	else
@@ -530,13 +498,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint8_t value
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
 		if(SDOAccessState == eSDOIdle)
 		{
-			Serial.print("Drive: set object ");
-			Serial.print(idx,HEX);
-			Serial.print(".");
-			Serial.print(subIdx,HEX);
-			Serial.print(" = ");
-			Serial.print(value, HEX);
-			Serial.println(" requested");
+			std::printf("Drive: set object %X.%X = %X requested\n", idx, subIdx, value);
 		}
 		#endif
 	
@@ -559,13 +521,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint16_t valu
 		MCDriveRxTxState = eMCDone;
 		
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
-		Serial.print("Drive: set object ");
-		Serial.print(idx,HEX);
-		Serial.print(".");
-		Serial.print(subIdx,HEX);
-		Serial.print(" = ");
-		Serial.print(value, HEX);
-		Serial.println(" done");
+		std::printf("Drive: set object %X.%X = %X done\n", idx, subIdx, value);
 		#endif
 	}
 	else
@@ -573,13 +529,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint16_t valu
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
 		if(SDOAccessState == eSDOIdle)
 		{
-			Serial.print("Drive: set object ");
-			Serial.print(idx,HEX);
-			Serial.print(".");
-			Serial.print(subIdx,HEX);
-			Serial.print(" = ");
-			Serial.print(value, HEX);
-			Serial.println(" requested");
+			std::printf("Drive: set object %X.%X = %X requested\n", idx, subIdx, value);
 		}
 		#endif
 	
@@ -602,13 +552,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint32_t valu
 		MCDriveRxTxState = eMCDone;
 		
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
-		Serial.print("Drive: set object ");
-		Serial.print(idx,HEX);
-		Serial.print(".");
-		Serial.print(subIdx,HEX);
-		Serial.print(" = ");
-		Serial.print(value, HEX);
-		Serial.println(" done");
+		std::printf("Drive: set object %X.%X = %X done\n", idx, subIdx, value);
 		#endif
 	}
 	else
@@ -616,13 +560,7 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint32_t valu
 		#if(DEBUG_DRIVE & DEBUG_WriteSDO)
 		if(SDOAccessState == eSDOIdle)
 		{
-			Serial.print("Drive: set object ");
-			Serial.print(idx,HEX);
-			Serial.print(".");
-			Serial.print(subIdx,HEX);
-			Serial.print(" = ");
-			Serial.print(value, HEX);
-			Serial.println(" requested");
+			std::printf("Drive: set object %X.%X = %X requested\n", idx, subIdx, value);
 		}
 		#endif
 	
@@ -636,11 +574,10 @@ DriveCommStates MCDrive::WriteObject(uint16_t idx, uint8_t subIdx, uint32_t valu
 
 /*---------------------------------------------------------------------
  * DriveCommStates DownloadParamterList(MCDriveParameter *, uint8_t);
- * donwnload a list of parameters to the drive
- * will onyl return positive, when all have been tranfered
+ * Download a list of parameters to the drive.
+ * Will only return positive when all have been transferred.
  *
  * 2024-07-21 AW
- *
  *------------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::DownloadParamterList(MCDriveParameter *Parameters, uint8_t count)
@@ -661,13 +598,7 @@ DriveCommStates MCDrive::DownloadParamterList(MCDriveParameter *Parameters, uint
 			AccessStep++;
 		
 		  #if(DEBUG_DRIVE & DEBUG_WriteSDO)
-		  Serial.print("Drive: set object ");
-		  Serial.print(index,HEX);
-		  Serial.print(".");
-		  Serial.print(subIdx,HEX);
-		  Serial.print(" = ");
-		  Serial.print(value, HEX);
-		  Serial.println(" done");
+		  std::printf("Drive: set object %X.%X = %X done\n", index, subIdx, value);
 		  #endif
 	  }
 	  else
@@ -675,13 +606,7 @@ DriveCommStates MCDrive::DownloadParamterList(MCDriveParameter *Parameters, uint
 		  #if(DEBUG_DRIVE & DEBUG_WriteSDO)
 		  if(SDOAccessState == eSDOIdle)
 		  {
-			  Serial.print("Drive: set object ");
-			  Serial.print(index,HEX);
-			  Serial.print(".");
-			  Serial.print(subIdx,HEX);
-			  Serial.print(" = ");
-			  Serial.print(value, HEX);
-			  Serial.println(" requested");
+			  std::printf("Drive: set object %X.%X = %X requested\n", index, subIdx, value);
 		  }
 		  #endif
 	
@@ -703,11 +628,10 @@ DriveCommStates MCDrive::DownloadParamterList(MCDriveParameter *Parameters, uint
 
 /*---------------------------------------------------------------------
  * DriveCommStates UploadParamterList(MCDriveParameter *Parameters, uint8_t count)
- * upload a list of parameters to the drive
- * will onyl return positive, when all have been uploaded
+ * Upload a list of parameters from the drive.
+ * Will only return positive when all have been uploaded.
  *
  * 2024-07-23 AW
- *
  *------------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::UploadParamterList(MCDriveParameter *Parameters, uint8_t count)
@@ -727,12 +651,7 @@ DriveCommStates MCDrive::UploadParamterList(MCDriveParameter *Parameters, uint8_
 			  AccessStep++;
 			
 			  #if (DEBUG_DRIVE & DEBUG_ReadSDO)
-			  Serial.print("Drive: object ");
-		    Serial.print(index,HEX);
-		    Serial.print(".");
-		    Serial.print(subIdx,HEX);
-		    Serial.print(" = ");
-			  Serial.println(*dataPtr, HEX);
+			  std::printf("Drive: object %X.%X = %X\n", index, subIdx, (uint32_t)ThisNode.GetObjValue());
 			  #endif
 			  break;
 		  case eSDOIdle:
@@ -740,11 +659,7 @@ DriveCommStates MCDrive::UploadParamterList(MCDriveParameter *Parameters, uint8_
 		  case eSDOWaiting:
 			  #if(DEBUG_DRIVE & DEBUG_ReadSDO)
 			  if(SDOAccessState == eSDOIdle)
-			  Serial.print("Drive: object ");
-		    Serial.print(index,HEX);
-		    Serial.print(".");
-		    Serial.print(subIdx,HEX);
-			  Serial.println(" angefragt");
+			    std::printf("Drive: object %X.%X angefragt\n", index, subIdx);
 			  #endif
 			
 			  SDOAccessState = ThisNode.ReadSDO(index, subIdx);
@@ -768,15 +683,15 @@ DriveCommStates MCDrive::UploadParamterList(MCDriveParameter *Parameters, uint8_
  * Enable the drive state machine.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
- 
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
+ *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::EnableDrive()
 {
-uint16_t StatusWord = ThisNode.StatusWord;
-uint16_t ControlWord = ThisNode.ControlWord;
+	uint16_t StatusWord = ThisNode.StatusWord;
+	uint16_t ControlWord = ThisNode.ControlWord;
 	
 	if((StatusWord & FSM402StatusMask) == FSM402_Enabled)
 	{
@@ -787,13 +702,12 @@ uint16_t ControlWord = ThisNode.ControlWord;
 			MCDriveRxTxState = eMCDone;
 			
 			#if(DEBUG_DRIVE & DEBUG_ENABLE)
-			Serial.print("Drive: Enabled SW ");
-			Serial.println(StatusWord, HEX);
+			std::printf("Drive: Enabled SW %X\n", StatusWord);
 			#endif
 		}
 		else
 		{
-			//CWAccess has to be finshed 
+			//CWAccess has to be finished 
 			CWAccessState = ThisNode.SendCw(ControlWord,MaxSWResponseDelay);
 		}
 	}
@@ -812,12 +726,11 @@ uint16_t ControlWord = ThisNode.ControlWord;
 		else
 		    newCW = (ControlWord & FSM402ControlMask) | 0x06; 	
 				
-		//send a new request only, if that has not been done last time	
+		//send a new request only if that has not been done last time	
 		#if(DEBUG_DRIVE & DEBUG_ENABLE)
 		if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 		{
-			Serial.print("Drive: Enable ");
-			Serial.println(newCW, HEX);
+			std::printf("Drive: Enable %X\n", newCW);
 		}
 		#endif
 			
@@ -835,15 +748,15 @@ uint16_t ControlWord = ThisNode.ControlWord;
  * Disable the drive state machine.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
- 
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
+ *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::DisableDrive()
 {
-uint16_t StatusWord = ThisNode.StatusWord;
-uint16_t ControlWord = ThisNode.ControlWord;
+	uint16_t StatusWord = ThisNode.StatusWord;
+	uint16_t ControlWord = ThisNode.ControlWord;
 
 
 	if((StatusWord & FSM402StatusMask) == FSM402_SwitchOnDisabled)
@@ -855,8 +768,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 			MCDriveRxTxState = eMCDone;
 			
 			#if(DEBUG_DRIVE & DEBUG_DISABLE)
-			Serial.print("Drive: Disabled SW ");
-			Serial.println(StatusWord, HEX);
+			std::printf("Drive: Disabled SW %X\n", StatusWord);
 			#endif
 		}
 		else
@@ -869,12 +781,10 @@ uint16_t ControlWord = ThisNode.ControlWord;
 	{
 		uint16_t newCW = (ControlWord & ~FSM402ControlMask);
 						
-		//send a new request only, if that has not been done last time	
 		#if(DEBUG_DRIVE & DEBUG_DISABLE)
 		if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 		{
-			Serial.print("Drive: Disable CW ");
-			Serial.println(ControlWord, HEX);
+			std::printf("Drive: Disable CW %X\n", ControlWord);
 		}
 		#endif		
 			
@@ -890,18 +800,18 @@ uint16_t ControlWord = ThisNode.ControlWord;
 
 /*---------------------------------------------------------------------
  * DriveCommStates StopDrive()
- * Stwich the drive state machine to QuickStop.
+ * Switch the drive state machine to QuickStop.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  *
  * 2020-11-22 AW untested
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::StopDrive()
 {
-uint16_t StatusWord = ThisNode.StatusWord;
-uint16_t ControlWord = ThisNode.ControlWord;
+	uint16_t StatusWord = ThisNode.StatusWord;
+	uint16_t ControlWord = ThisNode.ControlWord;
 
 	if( ((StatusWord & FSM402StatusMask) == FSM402_Stopped) || ((StatusWord & FSM402StatusMask) == FSM402_SwitchOnDisabled) ) 
 	{		
@@ -911,8 +821,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 			CWAccessState = eCWIdle;
 			
 			#if(DEBUG_DRIVE & DEBUG_STOP)
-			Serial.print("Drive: Stopped SW ");
-			Serial.println(StatusWord, HEX);
+			std::printf("Drive: Stopped SW %X\n", StatusWord);
 			#endif
 		}
 		else
@@ -928,8 +837,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 		#if(DEBUG_DRIVE & DEBUG_STOP)
 		if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 		{
-			Serial.print("Disable ");
-			Serial.println(ControlWord, HEX);
+			std::printf("Disable %X\n", ControlWord);
 		}
 		#endif
 			
@@ -947,15 +855,15 @@ uint16_t ControlWord = ThisNode.ControlWord;
  * Set the requested OpMode by writing via SDO to 0x6060.00.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  *
- * Does not read the OpMode back 0x6061.00 but switches to mCDone as soon
- * as the wite access was successful.
+ * Does not read the OpMode back 0x6061.00 but switches to eMCDone as soon
+ * as the write access was successful.
  * 
  * Parameters are all supported OpModes of the drive.
  *
  * 2020-11-22 AW Done
- * 2024-07-04 AW chenge to standard WriteObject() call
+ * 2024-07-04 AW changed to standard WriteObject() call
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::SetOpMode(int8_t OpMode)
@@ -976,14 +884,12 @@ DriveCommStates MCDrive::SetOpMode(int8_t OpMode)
  * Set all the profile related parameters:
  * ProfileACC: acceleration in 1 ... 30000 1/s²
  * ProfileDEC: acceleration in 1 ... 30000 1/s²
- * ProfileSpeed in 1 ... given in whatever user units the speed in scaled
- *              by the FActorGroup. Default unit is 1/min (rpm)
- * ProfileType is 0: trapezoidal, 1: sin²
+ * ProfileSpeed: given in whatever user units (scaled by the FactorGroup; default unit is 1/min (rpm))
+ * ProfileType: 0: trapezoidal, 1: sin²
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
-
+ * --> needs to be reset to eMCIdle after having registered the eMCDone
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -1000,7 +906,7 @@ DriveCommStates MCDrive::SetProfile(uint32_t ProfileACC, uint32_t ProfileDEC, ui
 				MCDriveRxTxState = eMCIdle;
 
 				#if(DEBUG_DRIVE & DEBUG_RWPARAM)
-				Serial.println("Drive: ACC set ");
+				std::printf("Drive: ACC set\n");
 				#endif
 			}
 			break;
@@ -1011,7 +917,7 @@ DriveCommStates MCDrive::SetProfile(uint32_t ProfileACC, uint32_t ProfileDEC, ui
 				MCDriveRxTxState = eMCIdle;
 
 				#if(DEBUG_DRIVE & DEBUG_RWPARAM)
-				Serial.println("Drive: DEC set ");
+				std::printf("Drive: DEC set\n");
 				#endif
 			}
 			break;
@@ -1022,7 +928,7 @@ DriveCommStates MCDrive::SetProfile(uint32_t ProfileACC, uint32_t ProfileDEC, ui
 				MCDriveRxTxState = eMCIdle;
 
 				#if(DEBUG_DRIVE & DEBUG_RWPARAM)
-				Serial.println("Drive: Speed set ");
+				std::printf("Drive: Speed set\n");
 				#endif
 			}
 			break;
@@ -1032,11 +938,11 @@ DriveCommStates MCDrive::SetProfile(uint32_t ProfileACC, uint32_t ProfileDEC, ui
 				AccessStep = 0;
 
 				#if(DEBUG_DRIVE & DEBUG_RWPARAM)
-				Serial.println("Drive: P-Type set ");
+				std::printf("Drive: P-Type set\n");
 				#endif
 			}
 			break;
-	}	//end of switch				
+	}				
 
 	//always check whether a SDO is stuck final 
 	return CheckComState();				
@@ -1044,19 +950,18 @@ DriveCommStates MCDrive::SetProfile(uint32_t ProfileACC, uint32_t ProfileDEC, ui
 
 /*---------------------------------------------------------------------
  * DriveCommStates StartAbsMove(int32_t TargetPos, bool immeditate)
- * Switch the drive in PP mode and start pos-controlled move to the given 
+ * Switch the drive in PP mode and start a position-controlled move to the given 
  * absolute position based on the latest profile parameters.
  * Uses the internal MovePP to do so.
  * 
- * Parameters are
- * TargetPos: position in whatever the position has be sclaed by the
- *            FactorGroup. Default scaling is in position encoder increments
- * immeditate: 0: will wait for a preceding move to be finished
+ * Parameters:
+ * TargetPos: position in the units scaled by the FactorGroup (default: encoder increments)
+ * immeditate: 0: will wait for a preceding move to finish
  *             1: start this move now
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -1068,20 +973,19 @@ DriveCommStates MCDrive::StartAbsMove(int32_t TargetPos, bool immeditate)
 
 /*---------------------------------------------------------------------
  * DriveCommStates StartRelMove(int32_t TargetPos, bool immeditate)
- * Switch the drive in PP mode and start pos-controlled move by the 
+ * Switch the drive in PP mode and start a position-controlled move by the 
  * given distance based on the latest profile parameters.
  * Uses the internal MovePP to do so.
  * 
- * Parameters are
- * TargetPos: position in whatever the position has be sclaed by the
- *            FactorGroup. Default scaling is in position encoder increments
- * immeditate: 0: will wait for a preceding move to be finished
+ * Parameters:
+ * TargetPos: position in the units scaled by the FactorGroup (default: encoder increments)
+ * immeditate: 0: will wait for a preceding move to finish
  *             1: start this move now
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
- * 
+ * --> must be reset to eMCIdle after registering eMCDone
+ *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
 
@@ -1093,14 +997,13 @@ DriveCommStates MCDrive::StartRelMove(int32_t TargetPos, bool immeditate)
 /*---------------------------------------------------------------------
  * DriveCommStates MoveAtSpeed(int32_t RefSpeed)
  * Switch the drive to PV mode and move at the given speed.
- * Parameter is:
- * RefSpeed: given in whatever user units the speed in scaled
- *              by the FactorGroup. Default unit is 1/min (rpm)
+ * Parameter:
+ * RefSpeed: speed given in the units scaled by the FactorGroup (default: 1/min (rpm))
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
- * 
+ * --> must be reset to eMCIdle after registering eMCDone
+ *
  * 2020-11-22 AW Done
  * 2024-07-06 AW successfully tested based on SetOpMode and WriteObject
  *--------------------------------------------------------------------*/
@@ -1118,10 +1021,9 @@ DriveCommStates MCDrive::MoveAtSpeed(int32_t RefSpeed)
 				OpModeReported = 3;
 				AccessStep = 1;
 				MCDriveRxTxState = eMCIdle;
-				//ThisNode.ResetComState();
 
 				#if(DEBUG_DRIVE & DEBUG_MoveSpeed)
-				Serial.println("Drive: OpMode set ");
+				std::printf("Drive: OpMode set\n");
 				#endif
 			}
 			break;
@@ -1130,7 +1032,7 @@ DriveCommStates MCDrive::MoveAtSpeed(int32_t RefSpeed)
 			{	
 				AccessStep = 0;
 				#if(DEBUG_DRIVE & DEBUG_MoveSpeed)
-				Serial.println("Drive: TSpeed set");
+				std::printf("Drive: TSpeed set\n");
 				#endif
 			}
 			break;
@@ -1144,12 +1046,12 @@ DriveCommStates MCDrive::MoveAtSpeed(int32_t RefSpeed)
  * Set the requested homing method by writing via SDO to 0x6098.00.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  *
  * Parameters are all supported homing modes of the drive.
  * 
  * 2020-11-22 AW Done
- * 2924-07-06 AW succesfully tested based on WriteObject
+ * 2924-07-06 AW successfully tested based on WriteObject
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::ConfigureHoming(int8_t method)
@@ -1160,22 +1062,22 @@ DriveCommStates MCDrive::ConfigureHoming(int8_t method)
 
 /*---------------------------------------------------------------------
  * DriveCommStates StartHoming()
- * Switch the drive to hmong mode and start the pre-configured homing
+ * Switch the drive to homing mode and start the pre-configured homing
  * method.
- * Uses an internal step sequence based on AccessStep to do so.
- * No Parameters required.
+ * Uses an internal step sequence based on AccessStep.
+ * No parameters required.
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
- * 
+ * --> must be reset to eMCIdle after registering eMCDone
+ *
  * 2020-11-22 AW Done
  * 2024-07-06 AW tested as a whole
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::DoHoming(uint16_t timeout)
 {
-uint16_t ControlWord = ThisNode.ControlWord;
+	uint16_t ControlWord = ThisNode.ControlWord;
 
 	//at the very beginning AccessStep has to be == 0
 	switch(AccessStep)
@@ -1190,7 +1092,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				AccessStep = 1;
 
 				#if(DEBUG_DRIVE & DEBUG_HOME)
-				Serial.println("Drive: intial Force Bit4==0");
+				std::printf("Drive: intial Force Bit4==0\n");
 				#endif
 			}
 			else
@@ -1200,8 +1102,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_HOME)
 				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 				{
-					Serial.print("Drive: Reset Start Bit first: ");
-					Serial.println(newCW, HEX);
+					std::printf("Drive: Reset Start Bit first: %X\n", newCW);
 				}
 				#endif
 					
@@ -1213,13 +1114,13 @@ uint16_t ControlWord = ThisNode.ControlWord;
 		case 1:
 			OpModeRequested = 6;
 
-		if(SetOpMode((int8_t)OpModeRequested) == eMCDone)
+			if(SetOpMode((int8_t)OpModeRequested) == eMCDone)
 			{
-        MCDriveRxTxState = eMCIdle;
+				MCDriveRxTxState = eMCIdle;
 				AccessStep = 2;
 
 				#if(DEBUG_DRIVE & DEBUG_HOME)
-				Serial.println("Drive: OpMode set to 6: Homing");
+				std::printf("Drive: OpMode set to 6: Homing\n");
 				#endif
 			}
 			break;
@@ -1232,17 +1133,15 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				{
 					AccessStep = 3;
 					#if(DEBUG_DRIVE & DEBUG_HOME)
-					Serial.print("Drive: OpMode pulled as expected: ");
-					Serial.println(OpModeReported, HEX);
+					std::printf("Drive: OpMode pulled as expected: %X\n", OpModeReported);
 					#endif
 				}
 				else
 				{
 					//try again
 					AccessStep = 1;
-			    #if(DEBUG_DRIVE & DEBUG_HOME)
-					Serial.print("Drive: OpMode pulled unexpected: ");
-					Serial.println(OpModeReported, HEX);
+					#if(DEBUG_DRIVE & DEBUG_HOME)
+					std::printf("Drive: OpMode pulled unexpected: %X\n", OpModeReported);
 					#endif
 				}
 			}
@@ -1256,7 +1155,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				AccessStep = 4;
 
 				#if(DEBUG_DRIVE & DEBUG_HOME)
-				Serial.println("Drive: Start Bit set --> wait for success");
+				std::printf("Drive: Start Bit set --> wait for success\n");
 				#endif
 			}
 			else
@@ -1266,8 +1165,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_HOME)
 				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 				{
-					Serial.print("Drive: Set Start Bit: ");
-					Serial.println(newCW, HEX);
+					std::printf("Drive: Set Start Bit: %X\n", newCW);
 				}
 				#endif
 					
@@ -1276,43 +1174,39 @@ uint16_t ControlWord = ThisNode.ControlWord;
 			}
 			break;
 		case 4:
-			//we are done and wait for the calling sequence to reset the ComState
-		  //here we should check whether homing is finished
-		  if(IsHomingFinished() == eMCDone)
-		  {
-        AccessStep = 5;
+			if(IsHomingFinished() == eMCDone)
+			{
+				AccessStep = 5;
 				MCDriveRxTxState = eMCIdle;
 			}
 			break;
 		case 5:
 			//reset start bit
 			if(CWAccessState == eCWDone)
-	    {
-		    ThisNode.ResetComState();
-		    CWAccessState = eCWIdle;
-		    MCDriveRxTxState = eMCDone;
-		    AccessStep = 0;
+			{
+				ThisNode.ResetComState();
+				CWAccessState = eCWIdle;
+				MCDriveRxTxState = eMCDone;
+				AccessStep = 0;
 
-		    #if(DEBUG_DRIVE & DEBUG_HOME)
-		      Serial.println("Drive: reset Start-bit again Bit4==0");
-		    #endif
-	    }
-	    else
-	    {
-		    uint16_t newCW = ControlWord & ~PP_StartBit;
+				#if(DEBUG_DRIVE & DEBUG_HOME)
+				std::printf("Drive: reset Start-bit again Bit4==0\n");
+				#endif
+			}
+			else
+			{
+				uint16_t newCW = ControlWord & ~PP_StartBit;
 							
-		    #if(DEBUG_DRIVE & DEBUG_HOME)
-		    if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
-		    {
-			    Serial.print("Drive: Reset Start Bit again: ");
-			    Serial.println(newCW, HEX);
-		    }
-		    #endif
+				#if(DEBUG_DRIVE & DEBUG_HOME)
+				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
+		    	{
+					std::printf("Drive: Reset Start Bit again: %X\n", newCW);
+				}
+				#endif
 				
-		    //no SW response required - 0 will avoid polling
-		    CWAccessState = ThisNode.SendCw(newCW,0);			
-		    MCDriveRxTxState = eMCWaiting;
-	    }			
+				CWAccessState = ThisNode.SendCw(newCW,0);			
+				MCDriveRxTxState = eMCWaiting;
+			}			
 			break;
 	}
 	//always check whether a SDO is stuck final 
@@ -1321,12 +1215,11 @@ uint16_t ControlWord = ThisNode.ControlWord;
 
 /*---------------------------------------------------------------------
  * DriveCommStates IsInPos()
- * Check the StatusWord of the drive and test it for the target reached
- * bit being set. Will update the Statusword cyclically using the internal
- * Wait4Status.
+ * Check the StatusWord of the drive for the target reached bit.
+ * Updates the StatusWord cyclically.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -1338,12 +1231,12 @@ DriveCommStates MCDrive::IsInPos()
 
 /*---------------------------------------------------------------------
  * DriveCommStates IsHomingFinished()
- * Check the StatusWord of the drive and test it for pattern indicating a 
- * successfully completed homing sequence being set. 
- * Will update the Statusword cyclically using the internal Wait4Status.
+ * Check the StatusWord of the drive for a pattern indicating a successful
+ * homing sequence.
+ * Updates the StatusWord cyclically.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -1355,9 +1248,8 @@ DriveCommStates MCDrive::IsHomingFinished()
 
 /*---------------------------------------------------------------------
  * bool IsLive()
- * Check whether a boot Msg of the drive has been received
- * Please note: in net-mode of multiple drives no boot messages
- * will be sent at all.
+ * Check whether a boot message from the drive has been received.
+ * In net-mode of multiple drives no boot messages are sent.
  *
  * 2020-11-22 AW untested
  *--------------------------------------------------------------------*/
@@ -1385,8 +1277,8 @@ uint16_t MCDrive::GetLastError()
 
 /*---------------------------------------------------------------------
  * void OnTimeOut()
- * Handler for whatever TO might be implemented during complex actions
- * As of now not used.
+ * Handler for any timeout during complex actions.
+ * Not currently used.
  * 
  * 2020-11-22 AW untested
  *--------------------------------------------------------------------*/
@@ -1394,18 +1286,17 @@ uint16_t MCDrive::GetLastError()
 void MCDrive::OnTimeOut()
 {
 	#if(DEBUG_DRIVE & DEBUG_TO)
-	Serial.print("Drive: Timeout ");
+	std::printf("Drive: Timeout ");
 	#endif
 }
 
 /*---------------------------------------------------------------------
  * DriveCommStates Wait4Status(uint16_t mask, uint16_t CycleTime)
- * Check the StatusWord of teh drive for the given pattern.
- * Will only return with eMCDone when the pattern is found. Will update
- * the StatusWord cyclically.
+ * Check the StatusWord for the given pattern.
+ * Returns eMCDone when the pattern is found; otherwise continues updating.
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  * 
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
@@ -1422,9 +1313,7 @@ DriveCommStates MCDrive::Wait4Status(uint16_t mask, uint16_t CycleTime)
 			MCDriveRxTxState = eMCDone;
 				
 			#if(DEBUG_DRIVE & DEBUG_PULLSW)
-			Serial.print("Drive: mask ");
-			Serial.print(mask, HEX);
-			Serial.println(" found");
+			std::printf("Drive: mask %X found\n", mask);
 			#endif
 		}
 		else
@@ -1437,7 +1326,7 @@ DriveCommStates MCDrive::Wait4Status(uint16_t mask, uint16_t CycleTime)
 		#if(DEBUG_DRIVE & DEBUG_PULLSW)
 		if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 		{
-			Serial.println("Drive: pull SW: ");
+			std::printf("Drive: pull SW: \n");
 		}
 		#endif
 			
@@ -1450,23 +1339,22 @@ DriveCommStates MCDrive::Wait4Status(uint16_t mask, uint16_t CycleTime)
 
 /*---------------------------------------------------------------------
  * DriveCommStates MovePP(int32_t TargetPos, bool immeditate, bool relative)
- * Internal function to start an either absolute or relative move in PP mode.
+ * Internal function to start either an absolute or relative move in PP mode.
  * Switches the drive to PP and handles the immediate bit.
  * Uses an internal step sequence based on AccessStep.
  *
  * --> will report eMCWaiting while busy
  * --> will report eMCDone when finished
- * --> needs to be rest to eMCIdle after having registered the eMCDone
+ * --> must be reset to eMCIdle after registering eMCDone
  *
  * 2020-11-22 AW Done
  *--------------------------------------------------------------------*/
 
 DriveCommStates MCDrive::MovePP(int32_t TargetPos, bool immeditate, bool relative)
 {
-uint16_t StatusWord = ThisNode.StatusWord;
-uint16_t ControlWord = ThisNode.ControlWord;
+	uint16_t StatusWord = ThisNode.StatusWord;
+	uint16_t ControlWord = ThisNode.ControlWord;
 
-	//at the very beginning AccessStep has to be == 0
 	switch(AccessStep)
 	{
 		case 0:
@@ -1481,7 +1369,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				AccessStep = 1;
 				
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
-				Serial.println("Drive: OpMode set ");
+				std::printf("Drive: OpMode set\n");
 				#endif
 			}
 			else
@@ -1495,9 +1383,8 @@ uint16_t ControlWord = ThisNode.ControlWord;
 					#if(DEBUG_DRIVE & DEBUG_MOVEPP)
 					if(SDOAccessState == eSDOIdle)
 					{
-						Serial.println("Drive: OpMode 1 Request");
+						std::printf("Drive: OpMode 1 Request\n");
 					}
-				
 					#endif
 				
 					SDOAccessState = ThisNode.WriteSDO(0x6060, 0x00,(uint32_t *)&OpModeRequested,1);
@@ -1521,7 +1408,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 					AccessStep = 2;
 
 					#if(DEBUG_DRIVE & DEBUG_MOVEPP)
-					Serial.println("Drive: intial Force Bit4==0");
+					std::printf("Drive: intial Force Bit4==0\n");
 					#endif
 				}
 				else
@@ -1537,8 +1424,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
 				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 				{
-					Serial.print("Drive: Reset Start Bit first: ");
-					Serial.println(newCW, HEX);
+					std::printf("Drive: Reset Start Bit first: %X\n", newCW);
 				}
 				#endif
 					
@@ -1547,16 +1433,13 @@ uint16_t ControlWord = ThisNode.ControlWord;
 			break;
 		case 2:
 			//set the TPos
-		  #if 0
-		  #else
 			if(SDOAccessState == eSDODone)
 			{
 				ThisNode.ResetComState();
 				SDOAccessState = eSDOIdle;
 				AccessStep = 3;
-				
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
-				Serial.println("Drive: TPos set ");
+				std::printf("Drive: TPos set\n");
 				#endif
 			}
 			else
@@ -1564,14 +1447,12 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
 				if(SDOAccessState == eSDOIdle)
 				{
-					Serial.print("Drive: TPos Request ");
-					Serial.println(TargetPos, DEC);
+					std::printf("Drive: TPos Request %d\n", TargetPos);
 				}
 				#endif
 				
 				SDOAccessState = ThisNode.WriteSDO(0x607A, 0x00,(uint32_t *)&TargetPos,4);
 			}
-			#endif
 			break;
 		case 3:
 			//set StartBit				
@@ -1587,7 +1468,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 					AccessStep = 4;
 					
 					#if(DEBUG_DRIVE & DEBUG_MOVEPP)
-					Serial.println("Drive: PP Started");
+					std::printf("Drive: PP Started\n");
 					#endif
 				}
 				else
@@ -1607,8 +1488,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
 				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 				{
-					Serial.print("Drive: Set Start Bit ");
-					Serial.println(newCW, HEX);
+					std::printf("Drive: Set Start Bit %X\n", newCW);
 				}
 				#endif
 
@@ -1630,7 +1510,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 					AccessStep = 0;
 				
 					#if(DEBUG_DRIVE & DEBUG_MOVEPP)
-					Serial.println("Node PP Start Done");
+					std::printf("Node PP Start Done\n");
 					#endif
 				}
 				else
@@ -1645,8 +1525,7 @@ uint16_t ControlWord = ThisNode.ControlWord;
 				#if(DEBUG_DRIVE & DEBUG_MOVEPP)
 				if((CWAccessState == eCWIdle) || (CWAccessState == eCWRetry))
 				{
-					Serial.print("Drive: Reset Start Bit again ");
-					Serial.println(newCW, HEX);
+					std::printf("Drive: Reset Start Bit again %X\n", newCW);
 				}
 				#endif
 
