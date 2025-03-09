@@ -277,14 +277,14 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 	if(CWAccessState != LastCWState)
 	{
 		LastCWState = CWAccessState;
-		Serial.print("Node: Send CW: New CWState ");
-		Serial.println(CWAccessState, DEC);
+		std::printf("Node: Send CW: New CWState ");
+		std::printf("%d\n", CWAccessState);
 	}
 	if(SDOAccessState != LastSDOState)
 	{
 		LastSDOState = SDOAccessState;
-		Serial.print("Node: Send CW: New SDOState ");
-		Serial.println(SDOAccessState, DEC);
+		std::printf("Node: Send CW: New SDOState ");
+		std::printf("%d\n", SDOAccessState);
 	}
 	#endif
 
@@ -298,7 +298,7 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 				doSend = true;
 			}
 			#if(DEBUG_NODE & DEBUG_TXCW)
-			Serial.print("W");
+			std::printf("W");
 			#endif
 			
 			//no break here
@@ -314,9 +314,9 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 					CwMsgBuffer.Payload = Data;
 
 					#if(DEBUG_NODE & DEBUG_TXCW)
-					Serial.print("Node: Send CW: ");
-					Serial.print(Data, HEX);
-					Serial.print(" --> ");					
+					std::printf("Node: Send CW: ");
+					std::printf("%X", Data);
+					std::printf(" --> ");
 					#endif
 
 					if(Handler->SendMsg(Channel,(MCMsg *)&CwMsgBuffer))
@@ -328,7 +328,7 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 						
 						//register a timeout handler
 						#if(DEBUG_NODE & DEBUG_TXCW)
-						Serial.println("Node: CW Waiting");
+						std::printf("Node: CW Waiting\n");
 						#endif
 
 						//the timer will generate a TO condition, when the response in not received in time
@@ -347,7 +347,7 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 							CWAccessState = eCWError;
 							
 							#if(DEBUG_NODE & DEBUG_ERROR)
-							Serial.println("Node: CW Busy!!");
+							std::printf("Node: CW Busy!!\n");
 							#endif
 						}
 						else
@@ -355,7 +355,7 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 							CWAccessState = eCWRetry;
 
 							#if(DEBUG_NODE & DEBUG_TXCW)
-							Serial.println("Node: CW Busy --> retry");
+							std::printf("Node: CW Busy --> retry\n");
 							#endif
 						}
 					}  // end of sent successfully or not
@@ -368,7 +368,7 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 			Handler->UnLockHandler();
 			hasMsgHandlerLocked = false;
 
-			//define tinme now as the start of the waiting time for SW
+			//define time now as the start of the waiting time for SW
 			SWRxAt = actTime;
 			break;
 		case eCWDone:
@@ -395,15 +395,15 @@ CWCommStates MCNode::SendCw(uint16_t Data, uint32_t maxSWDelay = MaxSWResponseDe
 				CWAccessState = eCWDone;
 								
 				#if(DEBUG_NODE & DEBUG_TXCW)
-				Serial.print("Node: Send CW: SW pulled ");
-				Serial.println(StatusWord, HEX);
+				std::printf("Node: Send CW: SW pulled ");
+				std::printf("%X\n", StatusWord);
 				#endif
 			}
 			else			
 			{
 				#if(DEBUG_NODE & DEBUG_TXCW)
 				if(SDOAccessState == eSDOIdle)
-					Serial.println("Node: Send CW: SW Request ");
+					std::printf("Node: Send CW: SW Request \n");
 				#endif
 
 				SDOAccessState = RWSDO.ReadSDO(0x6041, 0x00);
@@ -452,7 +452,7 @@ CWCommStates MCNode::PullSW(uint32_t maxSWDelay)
 				//to the SW is finished
 				//trigger a pull on the SW
 				#if(DEBUG_NODE & DEBUG_RXSW)
-				Serial.println("Node: Pull SW: Time over: pull again");
+				std::printf("Node: Pull SW: Time over: pull again\n");
 				#endif
 				SWAccessState = eCWWait4SW;		
 			}
@@ -468,15 +468,15 @@ CWCommStates MCNode::PullSW(uint32_t maxSWDelay)
 				SWAccessState = eCWDone;
 								
 				#if(DEBUG_NODE & DEBUG_RXSW)
-				Serial.print("Node: Pull SW: SW pulled ");
-				Serial.println(StatusWord, HEX);
+				std::printf("Node: Pull SW: SW pulled ");
+				std::printf("%X\n", StatusWord);
 				#endif
 			}
 			else			
 			{
 				#if(DEBUG_NODE & DEBUG_RXSW)
 				if(SDOAccessState == eSDOIdle)
-					Serial.println("Node: Pull SW: Send SW Request ");
+					std::printf("Node: Pull SW: Send SW Request \n");
 				#endif
 
 				SDOAccessState = RWSDO.ReadSDO(0x6041, 0x00);
@@ -525,7 +525,7 @@ CWCommStates MCNode::SendReset()
 					BusyRetryCounter = 0;
 					
 					#if(DEBUG_NODE & DEBUG_RESET)
-					Serial.println("Node: RESET sent");
+					std::printf("Node: RESET sent\n");
 					#endif
 					
 				}
@@ -538,7 +538,7 @@ CWCommStates MCNode::SendReset()
 						CWAccessState = eCWError;
 						
 						#if(DEBUG_NODE & DEBUG_ERROR)
-						Serial.println("Node: RESET Busy!!");
+						std::printf("Node: RESET Busy!!\n");
 						#endif
 					}
 					else
@@ -546,7 +546,7 @@ CWCommStates MCNode::SendReset()
 						CWAccessState = eCWRetry;
 
 						#if(DEBUG_NODE & DEBUG_RESET)
-						Serial.println("Node: RESET Busy --> retry");
+						std::printf("Node: RESET Busy --> retry\n");
 						#endif
 					}
 					
@@ -641,7 +641,7 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 	{
 		case eBootMsg:
 			#if(DEBUG_NODE & DEBUG_RXMSG)
-			Serial.println("Node: Rx Boot");
+			std::printf("Node: Rx Boot\n");
 			#endif
 			
 			isLive = true;
@@ -659,7 +659,7 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 				if(((CwMsgResponse *)Msg)->Error == 0)
 				{
 					#if(DEBUG_NODE & DEBUG_TXCW)
-					Serial.println("Node: Rx CW ok -->CWRxResponse");
+					std::printf("Node: Rx CW ok -->CWRxResponse\n");
 					#endif
 					firstCWAccess = 0;
 					CWAccessState = eCWRxResponse;
@@ -667,7 +667,7 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 				else
 				{
 					#if(DEBUG_NODE & DEBUG_ERROR)
-					Serial.println("Node: Rx CW error");
+					std::printf("Node: Rx CW error\n");
 					#endif
 					
 					//wrong answer
@@ -677,7 +677,7 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 			else
 			{
 				#if(DEBUG_NODE & DEBUG_ERROR)
-				Serial.println("Node: Rx CW why?");
+				std::printf("Node: Rx CW why? ");
 				#endif
 				//wrong state
 				CWAccessState = eCWError;
@@ -690,8 +690,8 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 			SWRxAt = actTime;
 			
 			#if(DEBUG_NODE & DEBUG_RXSW)
-			Serial.print("Node: Rx SW ");
-			Serial.println(StatusWord, HEX);
+			std::printf("Node: Rx SW ");
+			std::printf("%X\n", StatusWord);
 			#endif
 			break;
 		case eEmergencyMsg:
@@ -700,15 +700,15 @@ void MCNode::OnRxHandler(MCMsg *Msg)
 			EMCYCode = ((EMCYMsg *)Msg)->ErrorCode;
 			
 			#if(DEBUG_NODE & DEBUG_RXEMCY)
-			Serial.print("Node: Rx EMCY ");
-			Serial.println(EMCYCode, HEX);
+			std::printf("Node: Rx EMCY ");
+			std::printf("%X\n", EMCYCode);
 			#endif
 			break;
 		default:
 			//unexpected message
 			#if(DEBUG_NODE & DEBUG_ERROR)
-			Serial.print("Node: Rx wrong cmd!");
-			Serial.println(StatusWord, HEX);
+			std::printf("Node: Rx wrong cmd!");
+			std::printf("%X\n", StatusWord);
 			#endif
 			
 			RxTxState = eCWError;
