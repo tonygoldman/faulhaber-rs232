@@ -12,13 +12,13 @@
 
 #include <SDOHandler.h>
 
-#define DEBUG_RXMSG 	0x0001
-#define DEBUG_WREQ		0x0002
-#define DEBUG_RREQ		0x0004
-#define DEBUG_ERROR		0x0008
-#define DEBUG_TO		  0x0010
+#define DEBUG_RXMSG     0x0001
+#define DEBUG_WREQ      0x0002
+#define DEBUG_RREQ      0x0004
+#define DEBUG_ERROR     0x0008
+#define DEBUG_TO        0x0010
 #define DEBUG_UPDATETime 0x0020
-#define DEBUG_BUSY    0x8000
+#define DEBUG_BUSY      0x8000
 
 //#define DEBUG_SDO (DEBUG_TO | DEBUG_ERROR | DEBUG_RXMSG | DEBUG_WREQ | DEBUG_RREQ | DEBUG_BUSY)
 #define DEBUG_SDO (DEBUG_TO | DEBUG_ERROR)
@@ -38,7 +38,7 @@ const unsigned int SDORespTimeOut = (4 * MaxMsgTime);
  
 SDOHandler::SDOHandler()
 {
-	RxLen = 0;
+    RxLen = 0;
 }
 
 /*-------------------------------------------------------
@@ -55,15 +55,15 @@ SDOHandler::SDOHandler()
 
 void SDOHandler::init(MsgHandler *ThisHandler, uint8_t Handle)
 {
-	pfunction_holder Cb;
-	//register Cb
-	Cb.callback = (pfunction_pointer_t)SDOHandler::OnSDOMsgRxCb;
-	Cb.op = (void *)this;
-	
-	Handler = ThisHandler;
-	Channel = Handle;
-	Handler->Register_OnRxSDOCb(Channel,&Cb);
-	SDORxTxState = eSDOIdle;	
+    pfunction_holder Cb;
+    //register Cb
+    Cb.callback = (pfunction_pointer_t)SDOHandler::OnSDOMsgRxCb;
+    Cb.op = (void *)this;
+    
+    Handler = ThisHandler;
+    Channel = Handle;
+    Handler->Register_OnRxSDOCb(Channel,&Cb);
+    SDORxTxState = eSDOIdle;    
 }
 
 /*---------------------------------------------------------------
@@ -75,7 +75,7 @@ void SDOHandler::init(MsgHandler *ThisHandler, uint8_t Handle)
  
 SDOCommStates SDOHandler::GetComState()
 {
-	return SDORxTxState;
+    return SDORxTxState;
 }
 
 /*--------------------------------------------------------------
@@ -90,7 +90,7 @@ SDOCommStates SDOHandler::GetComState()
 
 void SDOHandler::SetTORetryMax(uint8_t value)
 {
-	TORetryMax = value;
+    TORetryMax = value;
 }
 
 /*--------------------------------------------------------------
@@ -105,7 +105,7 @@ void SDOHandler::SetTORetryMax(uint8_t value)
  
 void SDOHandler::SetBusyRetryMax(uint8_t value)
 {
-	BusyRetryMax = value;
+    BusyRetryMax = value;
 }
 
 /*----------------------------------------------
@@ -118,19 +118,19 @@ void SDOHandler::SetBusyRetryMax(uint8_t value)
 
 void SDOHandler::ResetComState()
 {
-	SDORxTxState = eSDOIdle;
-	TORetryCounter = 0;
-	BusyRetryCounter = 0;
-	//Handler should not be reset, as it could be used by different
-	//instances of the Drive
-	//Handler->ResetMsgHandler();	
-	//Handler can be unlocked if it is still denoted to be locked
-	
-	if(hasMsgHandlerLocked)
-	{
-		Handler->UnLockHandler();
-		hasMsgHandlerLocked = false;
-	}
+    SDORxTxState = eSDOIdle;
+    TORetryCounter = 0;
+    BusyRetryCounter = 0;
+    //Handler should not be reset, as it could be used by different
+    //instances of the Drive
+    //Handler->ResetMsgHandler();    
+    //Handler can be unlocked if it is still denoted to be locked
+    
+    if(hasMsgHandlerLocked)
+    {
+        Handler->UnLockHandler();
+        hasMsgHandlerLocked = false;
+    }
 }
 /*-------------------------------------------------------------
  * SDOCommStates ReadSDO(uint16_t Idx, uint8_t SubIdx)
@@ -146,75 +146,65 @@ void SDOHandler::ResetComState()
  * As any access to the MsgHandler ReadSDO will lock the Msghandler and
  * will only unlock it the actual service failed.
  * Successful servie will unlock in OnRxHandler().
-
  * 
  * 2020-11-18 AW Done
  * -------------------------------------------------------------*/
 
-
 SDOCommStates SDOHandler::ReadSDO(uint16_t Idx, uint8_t SubIdx)
 {
-	switch(SDORxTxState)
-	{
-		case eSDOIdle:
-		case eSDORetry:
-			//fill header
-			RxRqMsg.u8Len = 7;
-			RxRqMsg.u8Cmd = eSdoReadReq;
-			RxRqMsg.Idx = Idx;
-			RxRqMsg.SubIdx = SubIdx;
+    switch(SDORxTxState)
+    {
+        case eSDOIdle:
+        case eSDORetry:
+            //fill header
+            RxRqMsg.u8Len = 7;
+            RxRqMsg.u8Cmd = eSdoReadReq;
+            RxRqMsg.Idx = Idx;
+            RxRqMsg.SubIdx = SubIdx;
 
-			if((hasMsgHandlerLocked = Handler->LockHandler()))
-			{
-				//try to send the data
-				if(Handler->SendMsg(Channel,(MCMsg *)&RxRqMsg))
-				{
-					SDORxTxState = eSDOWaiting;
+            if((hasMsgHandlerLocked = Handler->LockHandler()))
+            {
+                //try to send the data
+                if(Handler->SendMsg(Channel,(MCMsg *)&RxRqMsg))
+                {
+                    SDORxTxState = eSDOWaiting;
 
-					BusyRetryCounter = 0;
-					
-					#if(DEBUG_SDO & DEBUG_RREQ)
-					Serial.print("SDO: N ");
-					Serial.print(Handler->GetNodeId(Channel),DEC);
-					Serial.print("RxReq ok: ");
-					Serial.print(Idx, HEX);
-					Serial.println(" --> eSDOWaiting");
-					#endif
-					
-					//register a timeout handler
-					RequestSentAt = actTime;
-					isTimerActive = true;
-				}
-				else
-				{
-					Handler->UnLockHandler();
-					hasMsgHandlerLocked = false;
+                    BusyRetryCounter = 0;
+                    
+                    #if(DEBUG_SDO & DEBUG_RREQ)
+                    std::printf("SDO: N %d RxReq ok: %X --> eSDOWaiting\n", Handler->GetNodeId(Channel), Idx);
+                    #endif
+                    
+                    //register a timeout handler
+                    RequestSentAt = actTime;
+                    isTimerActive = true;
+                }
+                else
+                {
+                    Handler->UnLockHandler();
+                    hasMsgHandlerLocked = false;
 
-					//didn't work
-					BusyRetryCounter++;
-					if(BusyRetryCounter > BusyRetryMax)
-					{
-						SDORxTxState = eSDOError;
-						#if(DEBUG_SDO & DEBUG_ERROR)
-						Serial.print("SDO: N ");
-						Serial.print(Handler->GetNodeId(Channel),DEC);
-						Serial.println(" RxReq failed --> eError");
-						#endif
-					}
-					else
-					{
-						SDORxTxState = eSDORetry;
-						#if(DEBUG_SDO & DEBUG_RREQ & DEBUG_BUSY)
-						Serial.print("SDO: N ");
-						Serial.print(Handler->GetNodeId(Channel),DEC);
-						Serial.println(" RxReq busy --> eRetry");
-						#endif
-					}
-				}
-			}
-			break;
-	}
-	return SDORxTxState;
+                    //didn't work
+                    BusyRetryCounter++;
+                    if(BusyRetryCounter > BusyRetryMax)
+                    {
+                        SDORxTxState = eSDOError;
+                        #if(DEBUG_SDO & DEBUG_ERROR)
+                        std::printf("SDO: N %d RxReq failed --> eError\n", Handler->GetNodeId(Channel));
+                        #endif
+                    }
+                    else
+                    {
+                        SDORxTxState = eSDORetry;
+                        #if(DEBUG_SDO & DEBUG_RREQ & DEBUG_BUSY)
+                        std::printf("SDO: N %d RxReq busy --> eRetry\n", Handler->GetNodeId(Channel));
+                        #endif
+                    }
+                }
+            }
+            break;
+    }
+    return SDORxTxState;
 }
 
 /*-------------------------------------------------------------
@@ -237,70 +227,63 @@ SDOCommStates SDOHandler::ReadSDO(uint16_t Idx, uint8_t SubIdx)
 
 SDOCommStates SDOHandler::WriteSDO(uint16_t Idx, uint8_t SubIdx,uint32_t *Data,uint8_t len)
 {
-	switch(SDORxTxState)
-	{
-		case eSDOIdle:
-		case eSDORetry:
-		//fill header
-			TxRqMsg.u8Len = 7 + len;
-			TxRqMsg.u8Cmd = eSdoWriteReq;
-			TxRqMsg.Idx = Idx;
-			TxRqMsg.SubIdx = SubIdx;
-			
-			//copy the data into the message
-		  //on Cortex this has to be done byte wise as u8UserData is not aligned to 32 bits
-			TxRqMsg.u8UserData[0] = ((uint8_t *)Data)[0];			
-			TxRqMsg.u8UserData[1] = ((uint8_t *)Data)[1];			
-			TxRqMsg.u8UserData[2] = ((uint8_t *)Data)[2];			
-			TxRqMsg.u8UserData[3] = ((uint8_t *)Data)[3];			
-			
-			if((hasMsgHandlerLocked = Handler->LockHandler()))
-			{				 
-				//send the data
-				if(Handler->SendMsg(Channel,(MCMsg *)&TxRqMsg))
-				{
-					SDORxTxState = eSDOWaiting;
-					BusyRetryCounter = 0;
-					
-					#if(DEBUG_SDO & DEBUG_WREQ)
-					Serial.print("SDO: N ");
-					Serial.print(Handler->GetNodeId(Channel),DEC);
-					Serial.print(" TxReq ok ");
-					Serial.println(Idx, HEX);
-					#endif
+    switch(SDORxTxState)
+    {
+        case eSDOIdle:
+        case eSDORetry:
+        //fill header
+            TxRqMsg.u8Len = 7 + len;
+            TxRqMsg.u8Cmd = eSdoWriteReq;
+            TxRqMsg.Idx = Idx;
+            TxRqMsg.SubIdx = SubIdx;
+            
+            //copy the data into the message
+          //on Cortex this has to be done byte wise as u8UserData is not aligned to 32 bits
+            TxRqMsg.u8UserData[0] = ((uint8_t *)Data)[0];			
+            TxRqMsg.u8UserData[1] = ((uint8_t *)Data)[1];			
+            TxRqMsg.u8UserData[2] = ((uint8_t *)Data)[2];			
+            TxRqMsg.u8UserData[3] = ((uint8_t *)Data)[3];			
+            
+            if((hasMsgHandlerLocked = Handler->LockHandler()))
+            {				 
+                //send the data
+                if(Handler->SendMsg(Channel,(MCMsg *)&TxRqMsg))
+                {
+                    SDORxTxState = eSDOWaiting;
+                    BusyRetryCounter = 0;
+                    
+                    #if(DEBUG_SDO & DEBUG_WREQ)
+                    std::printf("SDO: N %d TxReq ok %X\n", Handler->GetNodeId(Channel), Idx);
+                    #endif
 
-					RequestSentAt = actTime;
-					isTimerActive = true;
-				}
-				else
-				{
-					Handler->UnLockHandler();
-					hasMsgHandlerLocked = false;
+                    RequestSentAt = actTime;
+                    isTimerActive = true;
+                }
+                else
+                {
+                    Handler->UnLockHandler();
+                    hasMsgHandlerLocked = false;
 
-					BusyRetryCounter++;
-					if(BusyRetryCounter > BusyRetryMax)
-					{
-						SDORxTxState = eSDOError;
-						#if(DEBUG_SDO & DEBUG_ERROR)
-						Serial.print("SDO: N ");
-						Serial.print(Handler->GetNodeId(Channel),DEC);
-						Serial.println(" TxReq failed");
-						#endif
-					}
-					else
-					{
-						SDORxTxState = eSDORetry;
-						#if(DEBUG_SDO & DEBUG_WREQ | DEBUG_BUSY)
-						Serial.print("SDO: N ");
-						Serial.print(Handler->GetNodeId(Channel),DEC);
-						Serial.println(" TxReq busy");
-						#endif
-					}
-				}
-			}
-			break;
-	} //end of switch (SDORxTxState)
-	return SDORxTxState;
+                    BusyRetryCounter++;
+                    if(BusyRetryCounter > BusyRetryMax)
+                    {
+                        SDORxTxState = eSDOError;
+                        #if(DEBUG_SDO & DEBUG_ERROR)
+                        std::printf("SDO: N %d TxReq failed\n", Handler->GetNodeId(Channel));
+                        #endif
+                    }
+                    else
+                    {
+                        SDORxTxState = eSDORetry;
+                        #if(DEBUG_SDO & (DEBUG_WREQ | DEBUG_BUSY))
+                        std::printf("SDO: N %d TxReq busy\n", Handler->GetNodeId(Channel));
+                        #endif
+                    }
+                }
+            }
+            break;
+    } //end of switch (SDORxTxState)
+    return SDORxTxState;
 }
 
 /*-----------------------------------------------------
@@ -313,16 +296,16 @@ SDOCommStates SDOHandler::WriteSDO(uint16_t Idx, uint8_t SubIdx,uint32_t *Data,u
 
 uint32_t SDOHandler::GetObjValue()
 {
-	uint32_t retValue = RxData.u32;
-	
-	#if(DEBUG_SDO & DEBUG_RREQ)
-	Serial.println("SDO: Data fetched from buffer");
-	#endif
+    uint32_t retValue = RxData.u32;
+    
+    #if(DEBUG_SDO & DEBUG_RREQ)
+    std::printf("SDO: Data fetched from buffer\n");
+    #endif
 
-	if(SDORxTxState == eSDODone)
-		SDORxTxState = eSDOIdle;
-		
-	return retValue;	
+    if(SDORxTxState == eSDODone)
+        SDORxTxState = eSDOIdle;
+        
+    return retValue;    
 }
 //-------------------------------------------------------------------
 //--- private calls ---
@@ -339,127 +322,101 @@ uint32_t SDOHandler::GetObjValue()
 
 void SDOHandler::OnRxHandler(MCMsg *Msg)
 {
-	MCMsgCommands Cmd = Msg->Hdr.u8Cmd;
-	SDOMaxMsg *SDO = (SDOMaxMsg *)Msg;
+    MCMsgCommands Cmd = Msg->Hdr.u8Cmd;
+    SDOMaxMsg *SDO = (SDOMaxMsg *)Msg;
 
-	#if(DEBUG_SDO  & DEBUG_RXMSG)
-	Serial.print("S: Rx in S:");
-	Serial.println(SDORxTxState);
-	if((RxRqMsg.Idx == SDO->Idx) && (RxRqMsg.SubIdx == SDO->SubIdx))
-		Serial.println( " as expexted");
-	else
-	{
-	  Serial.print("SDO: Rx Idx ");
-	  Serial.print(RxRqMsg.Idx, HEX);
-	  Serial.print(" exp: ");
-	  Serial.println(SDO->Idx, HEX);
-	
-		Serial.print("SDO: Rx SubIdx ");
-	  Serial.print(RxRqMsg.SubIdx, HEX);
-	  Serial.print(" exp: ");
-	  Serial.println(SDO->SubIdx, HEX);
-	}	
-	#endif
-	
-	switch(Cmd)
-	{
-		case eSdoReadReq:
-			//should contain the requested data
-			if((RxRqMsg.Idx == SDO->Idx) && (RxRqMsg.SubIdx == SDO->SubIdx) && 
-				((SDORxTxState == eSDOWaiting) || (SDORxTxState == eSDORetry)) )
-			{
-	      #if(DEBUG_SDO  & DEBUG_RXMSG)
-	      Serial.println("S: processing RRx");
-				Serial.println(" --> eSDODone");
-				#endif
-				//correct answer
-				//calc the length of the payload
-				RxLen = (SDO->u8Len) - 7;
-				
-				isTimerActive = false;
-				
-		    //on Cortex this has to be done byte wise as u8UserData is not aligned to 32 bits
-				RxData.u8[0] = SDO->u8UserData[0];
-				RxData.u8[1] = SDO->u8UserData[1];
-				RxData.u8[2] = SDO->u8UserData[2];
-				RxData.u8[3] = SDO->u8UserData[3];
-				
-				//switch transfer to eDone state and unlock the 
-				//used MsgHandler	
-				SDORxTxState = eSDODone;
-				Handler->UnLockHandler();
-				hasMsgHandlerLocked = false;
+    #if(DEBUG_SDO  & DEBUG_RXMSG)
+    std::printf("S: Rx in S:%d\n", SDORxTxState);
+    if((RxRqMsg.Idx == SDO->Idx) && (RxRqMsg.SubIdx == SDO->SubIdx))
+        std::printf(" as expexted\n");
+    else
+    {
+      std::printf("SDO: Rx Idx %X exp: %X\n", RxRqMsg.Idx, SDO->Idx);
+      std::printf("SDO: Rx SubIdx %X exp: %X\n", RxRqMsg.SubIdx, SDO->SubIdx);
+    }	
+    #endif
+    
+    switch(Cmd)
+    {
+        case eSdoReadReq:
+            //should contain the requested data
+            if((RxRqMsg.Idx == SDO->Idx) && (RxRqMsg.SubIdx == SDO->SubIdx) && 
+                ((SDORxTxState == eSDOWaiting) || (SDORxTxState == eSDORetry)) )
+            {
+              #if(DEBUG_SDO  & DEBUG_RXMSG)
+              std::printf("S: processing RRx\n --> eSDODone\n");
+              #endif
+                //correct answer
+                //calc the length of the payload
+                RxLen = (SDO->u8Len) - 7;
+                
+                isTimerActive = false;
+                
+                //on Cortex this has to be done byte wise as u8UserData is not aligned to 32 bits
+                RxData.u8[0] = SDO->u8UserData[0];
+                RxData.u8[1] = SDO->u8UserData[1];
+                RxData.u8[2] = SDO->u8UserData[2];
+                RxData.u8[3] = SDO->u8UserData[3];
+                
+                //switch transfer to eDone state and unlock the 
+                //used MsgHandler    
+                SDORxTxState = eSDODone;
+                Handler->UnLockHandler();
+                hasMsgHandlerLocked = false;
 
-				#if(DEBUG_SDO  & DEBUG_RXMSG)
-				Serial.print("SDO: Rx Idx ");
-				Serial.print(SDO->Idx, HEX);
-				Serial.print(" :");
-				Serial.println(RxData.u32, HEX);				
-				#endif
-			}
-			else
-			{
-				//wrong answer
-				SDORxTxState = eSDOError;
-				
-				#if(DEBUG_SDO & DEBUG_ERROR)
-				Serial.print("SDO: Rx Error!");
-				Serial.print(" Idx: ");
-				Serial.print(SDO->Idx, HEX);
-				Serial.print(".");				
-				Serial.print(SDO->SubIdx, HEX);
-				Serial.print(" >> ");
-				Serial.println(SDORxTxState, DEC);
-				#endif				
-			}
-			break;
-		case eSdoWriteReq:
-			//should be the response only
-			if((TxRqMsg.Idx == SDO->Idx) && (TxRqMsg.SubIdx == SDO->SubIdx) && 
-				((SDORxTxState == eSDOWaiting) || (SDORxTxState == eSDORetry)))
-			{
-	      #if(DEBUG_SDO  & DEBUG_RXMSG)
-	      Serial.print("S: processing WRx");
-				#endif
-				//correct answer
-				//switch the state to the eDone and unlock the underlying 
-				//MsgHandler
-				SDORxTxState = eSDODone;
-				Handler->UnLockHandler();
-				hasMsgHandlerLocked = false;
-				
-				isTimerActive = false;
+                #if(DEBUG_SDO  & DEBUG_RXMSG)
+                std::printf("SDO: Rx Idx %X :%X\n", SDO->Idx, RxData.u32);
+                #endif
+            }
+            else
+            {
+                //wrong answer
+                SDORxTxState = eSDOError;
+                
+                #if(DEBUG_SDO & DEBUG_ERROR)
+                std::printf("SDO: Rx Error! Idx: %X. %X >> %d\n", SDO->Idx, SDO->SubIdx, SDORxTxState);
+                #endif                
+            }
+            break;
+        case eSdoWriteReq:
+            //should be the response only
+            if((TxRqMsg.Idx == SDO->Idx) && (TxRqMsg.SubIdx == SDO->SubIdx) && 
+                ((SDORxTxState == eSDOWaiting) || (SDORxTxState == eSDORetry)))
+            {
+              #if(DEBUG_SDO  & DEBUG_RXMSG)
+              std::printf("S: processing WRx");
+              #endif
+                //correct answer
+                //switch the state to the eDone and unlock the underlying 
+                //MsgHandler
+                SDORxTxState = eSDODone;
+                Handler->UnLockHandler();
+                hasMsgHandlerLocked = false;
+                
+                isTimerActive = false;
 
-				#if(DEBUG_SDO  & DEBUG_RXMSG)
-				Serial.print("SDO: Tx Idx ");
-				Serial.print(SDO->Idx, HEX);
-				Serial.println(" ok");
-				#endif
-			}
-			else
-			{
-				//wrong answer
-				SDORxTxState = eSDOError;	
-							
-				#if(DEBUG_SDO & DEBUG_ERROR)
-				Serial.print("SDO: Tx Error!");
-				Serial.print(" Idx: ");
-				Serial.print(SDO->Idx, HEX);
-				Serial.print(".");				
-				Serial.print(SDO->SubIdx, HEX);
-				Serial.print(" >> ");
-				Serial.println(SDORxTxState, DEC);
-				#endif				
-			}
-			break;
-		default:
-			//what's this? --> transit to eError
-			SDORxTxState = eSDOError;
-				#if(DEBUG_SDO & DEBUG_ERROR)
-				Serial.print("SDO: Rx wrong CMD Error!");
-				#endif				
-			break;
-	}
+                #if(DEBUG_SDO  & DEBUG_RXMSG)
+                std::printf("SDO: Tx Idx %X ok\n", SDO->Idx);
+                #endif
+            }
+            else
+            {
+                //wrong answer
+                SDORxTxState = eSDOError;    
+                            
+                #if(DEBUG_SDO & DEBUG_ERROR)
+                std::printf("SDO: Tx Error! Idx: %X. %X >> %d\n", SDO->Idx, SDO->SubIdx, SDORxTxState);
+                #endif                
+            }
+            break;
+        default:
+            //what's this? --> transit to eError
+            SDORxTxState = eSDOError;
+                #if(DEBUG_SDO & DEBUG_ERROR)
+                std::printf("SDO: Rx wrong CMD Error!");
+                #endif                
+            break;
+    }
 }
 
 /*----------------------------------------------------
@@ -473,18 +430,17 @@ void SDOHandler::OnRxHandler(MCMsg *Msg)
 
 void SDOHandler::SetActTime(uint32_t time)
 {
-	#if (DEBUG_SDO & DEBUG_UPDATETime)
-	Serial.print("S: dT:");
-  Serial.println(time-actTime);
-	#endif
-	
-	actTime = time;
-	
-	if((isTimerActive) && ((RequestSentAt + SDORespTimeOut) < actTime))	
-	{	
-		OnTimeOut();
-		isTimerActive = false;
-	}
+    #if (DEBUG_SDO & DEBUG_UPDATETime)
+    std::printf("S: dT:%u\n", time - actTime);
+    #endif
+    
+    actTime = time;
+    
+    if((isTimerActive) && ((RequestSentAt + SDORespTimeOut) < actTime))    
+    {    
+        OnTimeOut();
+        isTimerActive = false;
+    }
 
 }
 
@@ -499,35 +455,33 @@ void SDOHandler::SetActTime(uint32_t time)
 
 void SDOHandler::OnTimeOut()
 {
-	#if(DEBUG_SDO & DEBUG_TO)
-	Serial.print("SDO: Timeout ");
-	#endif
-	
-	if(TORetryCounter < TORetryMax)
-	{
-		SDORxTxState = eSDORetry;
-		TORetryCounter++;
-		
-		if(hasMsgHandlerLocked)
-		{
-			Handler->UnLockHandler();
-			hasMsgHandlerLocked = false;
-		}
+    #if(DEBUG_SDO & DEBUG_TO)
+    std::printf("SDO: Timeout ");
+    #endif
+    
+    if(TORetryCounter < TORetryMax)
+    {
+        SDORxTxState = eSDORetry;
+        TORetryCounter++;
+        
+        if(hasMsgHandlerLocked)
+        {
+            Handler->UnLockHandler();
+            hasMsgHandlerLocked = false;
+        }
 
 
-		#if(DEBUG_SDO & DEBUG_TO)
-		Serial.println("retry");
-		#endif
-	}
-	else
-	{	
-		SDORxTxState = eSDOTimeout;
-		TORetryCounter = 0;
+        #if(DEBUG_SDO & DEBUG_TO)
+        std::printf("retry\n");
+        #endif
+    }
+    else
+    {    
+        SDORxTxState = eSDOTimeout;
+        TORetryCounter = 0;
 
-		#if(DEBUG_SDO & DEBUG_TO)
-		Serial.println("final");
-		#endif
-	}
+        #if(DEBUG_SDO & DEBUG_TO)
+        std::printf("final\n");
+        #endif
+    }
 }
-
-
