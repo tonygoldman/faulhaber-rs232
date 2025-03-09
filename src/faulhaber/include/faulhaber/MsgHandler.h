@@ -13,7 +13,7 @@
  
 //--- includes ---
 
-#include <MCUart.h>
+#include "faulhaber/MCUart.h"
 #include <stdint.h>
 
 typedef enum MCMsgCommands {

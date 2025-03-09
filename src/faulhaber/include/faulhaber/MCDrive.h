@@ -11,7 +11,7 @@
  
 //--- inlcudes ----
  
-#include <MCNode.h>
+#include "faulhaber/MCNode.h"
 #include <stdint.h>
 
 //--- service define ---

@@ -10,8 +10,8 @@
 
 //--- includes ---
 
-#include <MsgHandler.h>
-#include <MC_Helpers.h>
+#include "faulhaber/MsgHandler.h"
+#include "faulhaber/MC_Helpers.h"
 #include <stdint.h>
 
 #define DEBUG_ONRX		0x0001

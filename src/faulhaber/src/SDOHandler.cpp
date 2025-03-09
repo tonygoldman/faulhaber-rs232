@@ -10,7 +10,7 @@
  
 //--- includes ---
 
-#include <SDOHandler.h>
+#include "faulhaber/SDOHandler.h"
 
 #define DEBUG_RXMSG     0x0001
 #define DEBUG_WREQ      0x0002

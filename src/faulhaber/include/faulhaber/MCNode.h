@@ -13,8 +13,8 @@
  
 //--- inlcudes ----
 
-#include <MsgHandler.h>
-#include <SDOHandler.h>
+#include "faulhaber/MsgHandler.h"
+#include "faulhaber/SDOHandler.h"
 #include <stdint.h>
 
 //--- service define ---

@@ -8,7 +8,6 @@
  * 
  * -------------------------------------------------------*/
 
-#include "Arduino.h"
 #include <stdint.h>
 
 //define a void function pointer which takes an argument

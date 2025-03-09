@@ -11,7 +11,7 @@
  
 //--- includes ---
 
-#include <MCNode.h>
+#include "faulhaber/MCNode.h"
 
 
 //--- local defines ---

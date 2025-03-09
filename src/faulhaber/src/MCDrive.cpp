@@ -10,7 +10,7 @@
 
 //--- includes ---
 
-#include <MCDrive.h>
+#include "faulhaber/MCDrive.h"
 
 //--- local defines ---
 
