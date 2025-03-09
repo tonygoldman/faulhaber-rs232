@@ -79,7 +79,7 @@ class MCNode {
 		CWCommStates SendReset();
 						
 		SDOCommStates ReadSDO(unsigned int, unsigned char);
-		SDOCommStates WriteSDO(unsigned int, unsigned char,unsigned long *,unsigned char);
+		SDOCommStates WriteSDO(unsigned int, unsigned char, uint32_t *,unsigned char);
 		SDOCommStates GetSDOState();
 
 		unsigned long GetObjValue();

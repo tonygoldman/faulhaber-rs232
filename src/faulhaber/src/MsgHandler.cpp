@@ -13,6 +13,7 @@
 #include "faulhaber/MsgHandler.h"
 #include "faulhaber/MC_Helpers.h"
 #include <stdint.h>
+#include <cstdio>
 
 #define DEBUG_ONRX		0x0001
 #define DEBUG_REGNODE	0x0002

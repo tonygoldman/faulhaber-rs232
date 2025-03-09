@@ -11,6 +11,7 @@
  
 //--- includes ---
 
+#include <cstdio>
 #include "faulhaber/MCNode.h"
 
 
@@ -596,13 +597,13 @@ SDOCommStates MCNode::ReadSDO(unsigned int Idx, unsigned char SubIdx)
 }
 
 /*------------------------------------------------------------------
- * DOCommStates WriteSDO(unsigned int Idx, unsigned char SubIdx,unsigned long * pData,unsigned char len)
+ * DOCommStates WriteSDO(unsigned int Idx, unsigned char SubIdx, uint32_t * pData,unsigned char len)
  * Provide access to the SDO serive of the built-in SDOHandler.
  * 
  * 2020-11-21 AW Done
  * ----------------------------------------------------------------*/
 
-SDOCommStates MCNode::WriteSDO(unsigned int Idx, unsigned char SubIdx,unsigned long * pData,unsigned char len)
+SDOCommStates MCNode::WriteSDO(unsigned int Idx, unsigned char SubIdx, uint32_t * pData,unsigned char len)
 {
 	return RWSDO.WriteSDO(Idx,SubIdx,pData,len);
 }

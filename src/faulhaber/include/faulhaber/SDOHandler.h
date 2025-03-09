@@ -87,7 +87,7 @@ class SDOHandler {
 		
 		SDOCommStates ReadSDO(uint16_t, uint8_t);
 		SDOCommStates WriteSDO(uint16_t, uint8_t,uint32_t *,uint8_t);
-		unsigned long GetObjValue();
+		uint32_t GetObjValue();
 	
 		SDOCommStates GetComState();
 		void ResetComState(); 

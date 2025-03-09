@@ -11,6 +11,7 @@
 //--- includes ---
 
 #include "faulhaber/SDOHandler.h"
+#include <cstdio>
 
 #define DEBUG_RXMSG     0x0001
 #define DEBUG_WREQ      0x0002
@@ -225,7 +226,7 @@ SDOCommStates SDOHandler::ReadSDO(uint16_t Idx, uint8_t SubIdx)
  * 2020-11-18 AW Done
  * -------------------------------------------------------------*/
 
-SDOCommStates SDOHandler::WriteSDO(uint16_t Idx, uint8_t SubIdx,uint32_t *Data,uint8_t len)
+SDOCommStates SDOHandler::WriteSDO(uint16_t Idx, uint8_t SubIdx, uint32_t *Data,uint8_t len)
 {
     switch(SDORxTxState)
     {

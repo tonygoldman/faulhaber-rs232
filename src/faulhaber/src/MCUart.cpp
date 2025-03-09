@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------
 //  includes
 
+#include <cstdio>
 #include "faulhaber/MCUart.h"
 
 //---------------------------------------------------------------------
@@ -67,10 +68,6 @@ void MCUart::Open(uint32_t baud = 115200)
 
     Serial1.begin(BaudRate);
 
-    //while(!Serial1)
-    //  ;
-    //Serial 1 seems to need some additional time to be really ready
-    delay(1000);
     for(uint16_t i = 0; i < 10; i++)
         Serial1.write((char)0);
     Serial1.flush();
