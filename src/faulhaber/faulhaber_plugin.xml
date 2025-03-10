@@ -1,0 +1,7 @@
+<library path="faulhaber">
+    <class name="faulhaber/Faulhaber" type="faulhaber::Faulhaber" base_class_type="hardware_interface::ActuatorInterface">
+        <description>
+            ros2_control faulhaber hardware interface
+        </description>
+    </class>
+</library>

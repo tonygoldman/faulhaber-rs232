@@ -155,6 +155,7 @@ void MCUart::Update(uint32_t actTime)
                         rxSize = UART_MIN_MSG_SIZE;
                         if(inChar ==  MsgPrefix)
                         {
+                            store = true;
                             To_Threshold = actTime + MsgTimeout;
                             isTimerActive = true;
                         }
@@ -312,6 +313,7 @@ short MCUart::WriteMsg(UART_Msg *Msg)
         #endif
 
         serial_stream_->write((char *)(TxMsg.u8Data), TxMsg.Hdr.u8Len + 2);
+        serial_stream_->DrainWriteBuffer();
     }
     #if(DEBUG_UART & DEBUG_TXFRAME)
     else

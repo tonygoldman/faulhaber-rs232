@@ -8,6 +8,10 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(hardware_interface REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(pluginlib REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -32,5 +36,40 @@ target_include_directories(
 )
 
 target_link_libraries(${PROJECT_NAME} ${SERIAL_LIBRARIES})
+
+ament_target_dependencies(
+  ${PROJECT_NAME}
+  hardware_interface
+  rclcpp
+  rclcpp_lifecycle
+)
+
+pluginlib_export_plugin_description_file(
+  hardware_interface ${PROJECT_NAME}_plugin.xml
+)
+
+install(
+  TARGETS
+  ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION lib
+  LIBRARY DESTINATION lib
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_include_directories(
+  include
+)
+
+ament_export_dependencies(
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
 
 ament_package()
