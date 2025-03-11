@@ -44,7 +44,7 @@ class MCUart
 	public:
 		MCUart();
 		~MCUart();
-		void Open(uint32_t);
+		void Open(const char*, uint32_t);
 		void ReOpen(uint32_t);
 		void Update(uint32_t);
 		void Register_OnRxCb(pfunction_holder *);

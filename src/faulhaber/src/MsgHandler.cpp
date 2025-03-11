@@ -62,10 +62,10 @@ MsgHandler::MsgHandler()
  * 
  * ----------------------------------------------------*/
  
-void MsgHandler::Open(uint32_t baudrate)
+void MsgHandler::Open(const char *serial_port, uint32_t baudrate)
 {
 	//open the interface and set speed of UART
-	Uart.Open(baudrate);	
+	Uart.Open(serial_port, baudrate);	
 }
 
 /*------------------------------------------------------

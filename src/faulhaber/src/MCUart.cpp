@@ -62,7 +62,7 @@ MCUart::~MCUart() {
  * 2020-11-18    Done
  * 
  * ---------------------------------------------------------*/
-void MCUart::Open(uint32_t baud = 115200)
+void MCUart::Open(const char *serial_port, uint32_t baud = 115200)
 {
     BaudRate = baud;
     rxIdx = 0;
@@ -72,7 +72,7 @@ void MCUart::Open(uint32_t baud = 115200)
     std::printf("UART: Open @ Speed: %u\n", BaudRate);
     #endif
 
-    serial_stream_->Open("/dev/ttyAMA0");
+    serial_stream_->Open(serial_port);
     serial_stream_->SetBaudRate(LibSerial::BaudRate::BAUD_115200);
     serial_stream_->SetCharacterSize(LibSerial::CharacterSize::CHAR_SIZE_8);
     serial_stream_->SetParity(LibSerial::Parity::PARITY_NONE);
@@ -81,25 +81,6 @@ void MCUart::Open(uint32_t baud = 115200)
     serial_stream_->flush();
 
     state = eUartOperating;
-}
-
-/*----------------------------------------------------------
- * Reopen(unsigned long)
- * change the BR by waitinf for any ongoing transmission, closing
- * and reopening the interface
- * 
- * 2020-05-15 AW Frame
- * 2020-11-18    Done
- * 
- * ---------------------------------------------------------*/
-void MCUart::ReOpen(uint32_t baud = 115200)
-{
-    BaudRate = baud;
-    rxIdx = 0;
-    rxSize = 0;
-
-    Stop();
-    Open();
 }
 
 /*----------------------------------------------------------

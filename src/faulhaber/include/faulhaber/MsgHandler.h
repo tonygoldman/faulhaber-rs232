@@ -49,7 +49,7 @@ const uint8_t InvalidSlot = 0xff;
 class MsgHandler {
 	public:
 		MsgHandler();
-		void Open(uint32_t);
+		void Open(const char*, uint32_t);
 		void Update(uint32_t);
 		uint8_t RegisterNode(uint8_t);
 		void UnRegisterNode(uint8_t);
